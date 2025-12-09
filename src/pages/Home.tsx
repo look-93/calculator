@@ -78,35 +78,64 @@ export default function Home() {
 
       //먼저 로컬스토리지 값 확인
       // 로컬스토리지에서 데이터의 갯수 확인
-      // 3개 이하면 집어넣고, 4개 이상이면 처음 넣은 데이터를 삭제 후 삽입(pop)
-      let calcStack = [];
-      if (localStorage.length === null) {
-        calcStack.push(`${value} = ${finalResult}`);
-        let calcStackJson = JSON.stringify(calcStack);
-        localStorage.setItem("calcs", calcStackJson);
-      } else if (localStorage.length <= 3) {
-        let getCalcStackJson = localStorage.getItem("calcs");
 
-        calcStack.push(`${getCalcStackJson}${value} = ${finalResult}`);
-        let calcStackJson = JSON.stringify(getCalcStackJson);
-        localStorage.setItem("calcs", calcStackJson);
-        console.log(localStorage.getItem("calcs"));
+      // 로컬스토리지안에 calcs에 있는 문자열을 객체로 바꾼 데이터의 갯수
+
+      // const bora = {
+      //   name: "보라",
+      // };
+
+      // const caldat = ["aa","bb","cc"]
+      // const stpy = "[\"aa\",\"bb\",\"cc\"]"
+
+      // const stringOBJ = JSON.stringify(bora);
+      // const stringOBJ1: string = '{name:"보라"}';
+      // localStorage.setItem("bora", stringOBJ1);
+      // const borastr = localStorage.getItem("bora");
+
+      //   const calcs = localStorage.getItem("calcs");
+      //   if (calcs) {
+      //     // 있으면 꺼내서 객체(역질렬화:문자를 객체로 만든다)로 만든 뒤 길이를 잰다
+      //     // 3개 이하면 집어넣고, 4개 이상이면 처음 넣은 데이터를 삭제 후 삽입(pop)
+      //     // 로컬스토리지안에 calcs에 있는 문자열을 객체로 바꾼 데이터의 갯수
+      //     const calcArray: string[] = JSON.parse(calcs);
+
+      //     if (calcArray.length <= 3) {
+      //       calcArray.push(`${value} = ${finalResult}`);
+      //       const calcArrayString = JSON.stringify(calcArray);
+      //       localStorage.setItem("calcs", calcArrayString);
+      //     } else if (calcArray.length >= 4) {
+      //       calcArray.pop();
+      //       calcArray.push(`${value} = ${finalResult}`);
+      //       const calcArrayString = JSON.stringify(calcArray);
+      //       localStorage.setItem("calcs", calcArrayString);
+      //     }
+      //   } else {
+      //     // 없으면 값을 배열에 넣어서 (직렬화(stringify):객체를 문자(bytecode)로 변경
+      //     // 로컬스토리지에 저장
+      //     const calcArray = [`${value} = ${finalResult}`];
+      //     const calcArrayString = JSON.stringify(calcArray);
+      //     localStorage.setItem("calcs", calcArrayString);
+      //   }
+      // }
+
+      //상태로 히스토리 관리를 하고, 저장 할 때는 로컬스토리지에 함께,
+      //최초에 불러 올 때는 로컬스토리지를 불러와서 히스토리에 넣는다.
+
+      // localStorage.clear();
+      // 연산자를 누른 경우 마지막 결과값으로 재연산
+      if (justOperator && isNaN(Number(num))) {
+        const newCalc = finalValue.replace("=", "");
+        setValue(`${newCalc}${num}`);
+        setFinalValue("");
+        setJustOperator(false);
       }
-    }
-
-    // localStorage.clear();
-    // 연산자를 누른 경우 마지막 결과값으로 재연산
-    if (justOperator && isNaN(Number(num))) {
-      const newCalc = finalValue.replace("=", "");
-      setValue(`${newCalc}${num}`);
-      setFinalValue("");
-      setJustOperator(false);
-    }
-    // 숫자를 누른경우 누른 숫자부터 재연산
-    else if (justOperator && !isNaN(Number(num))) {
-      setValue(num);
-      setFinalValue("");
-      setJustOperator(false);
+      // 숫자를 누른경우 누른 숫자부터 재연산
+      else if (justOperator && !isNaN(Number(num))) {
+        setValue(num);
+        setFinalValue("");
+        setJustOperator(false);
+      }
     }
   };
 
@@ -139,7 +168,6 @@ export default function Home() {
           <div className="h-30">
             <div className="flex items-end justify-end h-[100px] m-2 bg-gray-400 shadow-md ">
               <p className="">
-                {/* {calcStack} */}
                 {value === "" ? "0" : value}
                 {finalValue}
               </p>
