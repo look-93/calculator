@@ -21,10 +21,9 @@ const keyValue = [
 export default function Home() {
   const [value, setValue] = useState("");
   const [finalValue, setFinalValue] = useState("");
-  const [calc, setCalc] = useState("");
   const [justOperator, setJustOperator] = useState(false);
-  const [calcStack, setCalcStack] = useState<[]>([]);
-
+  const [history, setHistory] = useState<string[]>([]);
+  const [arr, setArr] = useState("");
   const result = (num: any) => {
     // console.log(num);
 
@@ -72,7 +71,7 @@ export default function Home() {
       }
       setJustOperator(true);
       setFinalValue(String(` = ${finalResult}`));
-
+      setArr(`${value} = ${finalResult}`);
       // let calcStack = [];
       // calcStack.push(`${value} = ${finalResult}`);
 
@@ -80,10 +79,6 @@ export default function Home() {
       // 로컬스토리지에서 데이터의 갯수 확인
 
       // 로컬스토리지안에 calcs에 있는 문자열을 객체로 바꾼 데이터의 갯수
-
-      // const bora = {
-      //   name: "보라",
-      // };
 
       // const caldat = ["aa","bb","cc"]
       // const stpy = "[\"aa\",\"bb\",\"cc\"]"
@@ -122,42 +117,54 @@ export default function Home() {
       //상태로 히스토리 관리를 하고, 저장 할 때는 로컬스토리지에 함께,
       //최초에 불러 올 때는 로컬스토리지를 불러와서 히스토리에 넣는다.
 
-      // localStorage.clear();
-      // 연산자를 누른 경우 마지막 결과값으로 재연산
-      if (justOperator && isNaN(Number(num))) {
-        const newCalc = finalValue.replace("=", "");
-        setValue(`${newCalc}${num}`);
-        setFinalValue("");
-        setJustOperator(false);
-      }
-      // 숫자를 누른경우 누른 숫자부터 재연산
-      else if (justOperator && !isNaN(Number(num))) {
-        setValue(num);
-        setFinalValue("");
-        setJustOperator(false);
+      const calcs = localStorage.getItem("calcs");
+
+      const newItem = `${value} = ${finalResult}`;
+
+      if (!calcs) {
+        const newArray = [newItem];
+        localStorage.setItem("calcs", JSON.stringify(newArray));
+        console.log("1개");
+      } else {
+        const calcArray = JSON.parse(calcs);
+
+        if (calcArray.length >= 3) {
+          const updateCalcs = [...calcArray, newItem].slice(-3);
+          localStorage.setItem("calcs", JSON.stringify(updateCalcs));
+          console.log("4개");
+        } else if (calcArray.length <= 3) {
+          const updateCalcs = [...calcArray, newItem];
+          localStorage.setItem("calcs", JSON.stringify(updateCalcs));
+          console.log("3개");
+        }
       }
     }
-  };
 
-  // const storedCalcs = localStorage.getItem("calcs");
+    const calcArray = localStorage.getItem("calcs");
+
+    const calcs = JSON.parse(calcArray ?? "[]");
+    // console.log(calcs);
+    // 연산자를 누른 경우 마지막 결과값으로 재연산
+    if (justOperator && isNaN(Number(num))) {
+      const newCalc = finalValue.replace("=", "");
+      setValue(`${newCalc}${num}`);
+      setFinalValue("");
+      setJustOperator(false);
+      setHistory(calcs);
+    }
+    // 숫자를 누른경우 누른 숫자부터 재연산
+    else if (justOperator && !isNaN(Number(num))) {
+      setValue(num);
+      setFinalValue("");
+      setJustOperator(false);
+      setHistory(calcs);
+    }
+  };
+  // localStorage.clear();
 
   // useEffect(() => {
-  //   if (!storedCalcs) {
-  //     setCalcStack([]);
-  //   } else {
-  //     setCalcStack(JSON.parse(storedCalcs));
-  //   }
-  // }, [storedCalcs]);
-
-  // console.log(calcStack);
-  // localStorage.clear();
-  // if (json) {
-  //   const storedCalcs = JSON.parse(json);
-
-  // } else {
-  //   setCalcStack("0");
-  // }
-
+  //   const calcs = localStorage.getItem("calcs");
+  // }, []);
   return (
     <div>
       <div className="bg-red-500 text-white p-4 text-center text-lg ">
@@ -167,14 +174,28 @@ export default function Home() {
         <div className="border border-gray-400 rounded-sm">
           <div className="h-30">
             <div className="flex items-end justify-end h-[100px] m-2 bg-gray-400 shadow-md ">
-              <p className="">
-                {value === "" ? "0" : value}
-                {finalValue}
-              </p>
+              <div>
+                {history.map((data, idx) => (
+                  <p key={idx}>{data}</p>
+                ))}
+
+                <p>
+                  {value === "" ? "0" : value}
+                  {finalValue}
+                </p>
+              </div>
             </div>
           </div>
           <div className="grid grid-cols-2 shadow-md h-[40px] border-t border-b border-gray-400 bg-gray-200 ">
-            <CalcKey keyValue={"AC"} />
+            <CalcKey
+              keyValue={"AC"}
+              onClick={() => {
+                localStorage.clear();
+                setValue("");
+                setFinalValue("");
+                setHistory([]);
+              }}
+            />
             <CalcKey keyValue={"C"} />
           </div>
           <div className="grid grid-cols-4 h-60 w-60 ">
