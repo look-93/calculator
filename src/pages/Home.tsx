@@ -23,13 +23,24 @@ export default function Home() {
   const [finalValue, setFinalValue] = useState("");
   const [justOperator, setJustOperator] = useState(false);
   const [history, setHistory] = useState<string[]>([]);
-  const [arr, setArr] = useState("");
+  const [clearValue, setClearValue] = useState(false);
+
+  const [onKeyDown, setOnKeyDown] = useState("");
   const result = (num: any) => {
     // console.log(num);
 
-    setValue(value + num);
+    setValue((value: string) => {
+      if (isNaN(Number(num))) {
+        return "0" + num;
+      }
+      return value + num;
+    });
 
+    // setValue(value + num);
+
+    // "=" 연산자 제외
     if (num === "=") {
+      // console.log(num);
       setValue(value);
     }
 
@@ -71,7 +82,7 @@ export default function Home() {
       }
       setJustOperator(true);
       setFinalValue(String(` = ${finalResult}`));
-      setArr(`${value} = ${finalResult}`);
+
       // let calcStack = [];
       // calcStack.push(`${value} = ${finalResult}`);
 
@@ -124,18 +135,15 @@ export default function Home() {
       if (!calcs) {
         const newArray = [newItem];
         localStorage.setItem("calcs", JSON.stringify(newArray));
-        console.log("1개");
       } else {
         const calcArray = JSON.parse(calcs);
 
         if (calcArray.length >= 3) {
           const updateCalcs = [...calcArray, newItem].slice(-3);
           localStorage.setItem("calcs", JSON.stringify(updateCalcs));
-          console.log("4개");
         } else if (calcArray.length <= 3) {
           const updateCalcs = [...calcArray, newItem];
           localStorage.setItem("calcs", JSON.stringify(updateCalcs));
-          console.log("3개");
         }
       }
     }
@@ -147,7 +155,8 @@ export default function Home() {
     // 연산자를 누른 경우 마지막 결과값으로 재연산
     if (justOperator && isNaN(Number(num))) {
       const newCalc = finalValue.replace("=", "");
-      setValue(`${newCalc}${num}`);
+      // console.log(`newCalc = ${newCalc}`);
+      setValue(`${!newCalc ? "0" : newCalc}${num}`);
       setFinalValue("");
       setJustOperator(false);
       setHistory(calcs);
@@ -160,11 +169,43 @@ export default function Home() {
       setHistory(calcs);
     }
   };
-  // localStorage.clear();
 
-  // useEffect(() => {
-  //   const calcs = localStorage.getItem("calcs");
-  // }, []);
+  const clear = () => {
+    setFinalValue("");
+    setValue((prev) => {
+      if (justOperator) {
+        return "0";
+      } else if (prev.length <= 1) {
+        return "0";
+      }
+      return prev.slice(0, -1);
+    });
+    // setClearValue(false);
+  };
+
+  // console.log(finalValue);
+  // console.log(value);
+  // localStorage.clear();
+  useEffect(() => {
+    const calcs = localStorage.getItem("calcs");
+    const calcArray = JSON.parse(calcs ?? "[]");
+    setHistory(calcArray);
+  }, [clearValue, value]);
+
+  // const handleKeyDown = (event: any) => {
+  //   // setValue(event);
+  //   console.log(event);
+  // };
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      console.log(e.key);
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   return (
     <div>
       <div className="bg-red-500 text-white p-4 text-center text-lg ">
@@ -176,10 +217,12 @@ export default function Home() {
             <div className="flex items-end justify-end h-[100px] m-2 bg-gray-400 shadow-md ">
               <div>
                 {history.map((data, idx) => (
-                  <p key={idx}>{data}</p>
+                  <p key={idx} className="text-right">
+                    {data}
+                  </p>
                 ))}
 
-                <p>
+                <p className="text-right">
                   {value === "" ? "0" : value}
                   {finalValue}
                 </p>
@@ -196,7 +239,13 @@ export default function Home() {
                 setHistory([]);
               }}
             />
-            <CalcKey keyValue={"C"} />
+            <CalcKey
+              keyValue={"C"}
+              onClick={() => {
+                clear();
+                setClearValue(true);
+              }}
+            />
           </div>
           <div className="grid grid-cols-4 h-60 w-60 ">
             {keyValue.map((keyValue, idx) => (

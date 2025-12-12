@@ -5,12 +5,14 @@ type CalcKeyProps = {
   keyValue: string;
   className?: string;
   onClick?: (prev: any) => void;
+  onKeyDown?: (e: any) => void;
 };
 
 export default function CalcKey({
   keyValue,
   className,
   onClick,
+  onKeyDown,
 }: CalcKeyProps) {
   return (
     <button
@@ -19,6 +21,7 @@ export default function CalcKey({
         className
       )}
       onClick={onClick}
+      onKeyDown={onKeyDown}
     >
       {keyValue}
     </button>
