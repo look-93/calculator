@@ -25,12 +25,20 @@ export default function Home() {
   const [history, setHistory] = useState<string[]>([]);
   const [clearValue, setClearValue] = useState(false);
 
-  const [onKeyDown, setOnKeyDown] = useState("");
+  // const [onKeyDown, setOnKeyDown] = useState("");
+
   const result = (num: any) => {
-    setValue((value: string) => {
-      if (isNaN(Number(num))) {
+    const operators = ["+", "-", "*", "/"];
+    const isOperator = operators.includes(num);
+    setValue((prev: string) => {
+      if (prev === "" && isOperator) {
         return "0" + num;
       }
+      // 연산자 연속 입력 시 마지막 연산자로 교체
+      if (isOperator && operators.includes(prev.slice(-1))) {
+        return prev.slice(0, -1) + num;
+      }
+
       return value + num;
     });
 
@@ -38,12 +46,17 @@ export default function Home() {
     if (num === "=") {
       setValue(value);
     }
-
     if (num === "=") {
       let newValue = String(value).replace("=", "");
       let tokens = newValue.match(/\d*\.?\d+|[+\-*/]/g);
 
+      // console.log(newValue);
       if (!tokens) return;
+
+      // "=" 을 눌렀을 때, 연산자 다음 숫자가 없는 경우 현재 value값 리턴
+      if (operators.includes(value.slice(-1))) {
+        return value;
+      }
 
       let stack = [];
       let current = Number(tokens[0]);
