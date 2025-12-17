@@ -27,8 +27,6 @@ export default function Home() {
 
   const [onKeyDown, setOnKeyDown] = useState("");
   const result = (num: any) => {
-    // console.log(num);
-
     setValue((value: string) => {
       if (isNaN(Number(num))) {
         return "0" + num;
@@ -36,11 +34,8 @@ export default function Home() {
       return value + num;
     });
 
-    // setValue(value + num);
-
     // "=" 연산자 제외
     if (num === "=") {
-      // console.log(num);
       setValue(value);
     }
 
@@ -86,7 +81,7 @@ export default function Home() {
       // let calcStack = [];
       // calcStack.push(`${value} = ${finalResult}`);
 
-      //먼저 로컬스토리지 값 확인
+      // 먼저 로컬스토리지 값 확인
       // 로컬스토리지에서 데이터의 갯수 확인
 
       // 로컬스토리지안에 calcs에 있는 문자열을 객체로 바꾼 데이터의 갯수
@@ -151,11 +146,10 @@ export default function Home() {
     const calcArray = localStorage.getItem("calcs");
 
     const calcs = JSON.parse(calcArray ?? "[]");
-    // console.log(calcs);
+
     // 연산자를 누른 경우 마지막 결과값으로 재연산
     if (justOperator && isNaN(Number(num))) {
       const newCalc = finalValue.replace("=", "");
-      // console.log(`newCalc = ${newCalc}`);
       setValue(`${!newCalc ? "0" : newCalc}${num}`);
       setFinalValue("");
       setJustOperator(false);
@@ -180,31 +174,23 @@ export default function Home() {
       }
       return prev.slice(0, -1);
     });
-    // setClearValue(false);
   };
 
-  // console.log(finalValue);
-  // console.log(value);
-  // localStorage.clear();
   useEffect(() => {
     const calcs = localStorage.getItem("calcs");
     const calcArray = JSON.parse(calcs ?? "[]");
     setHistory(calcArray);
   }, [clearValue, value]);
 
-  // const handleKeyDown = (event: any) => {
-  //   // setValue(event);
-  //   console.log(event);
-  // };
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      console.log(e.key);
-    };
+  // useEffect(() => {
+  //   const handleKeyDown = (e: KeyboardEvent) => {
+  //     console.log(e.key);
+  //   };
 
-    window.addEventListener("keydown", handleKeyDown);
+  //   window.addEventListener("keydown", handleKeyDown);
 
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
+  //   return () => window.removeEventListener("keydown", handleKeyDown);
+  // }, []);
 
   return (
     <div>
